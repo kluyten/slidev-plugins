@@ -1,0 +1,40 @@
+{
+  "name": "@krisluyten/slidev-plugins",
+  "version": "1.0.0",
+  "description": "Interactive Vue components for Slidev presentations: LLMQuery (AI-powered slide assistant) and JavaPlayGround (live Java code editor)",
+  "main": "index.js",
+  "author": "Kris Luyten <kris.luyten@uhasselt.be> (https://krisluyten.net)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krisluyten/slidev-plugins.git"
+  },
+  "keywords": [
+    "slidev",
+    "vue",
+    "components",
+    "presentation",
+    "ai",
+    "llm",
+    "openrouter",
+    "java",
+    "code-editor",
+    "education",
+    "interactive",
+    "teaching"
+  ],
+  "peerDependencies": {
+    "axios": "^1.6.0",
+    "marked": "^11.0.0",
+    "vue": "^3.3.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "LLMQuery.vue",
+    "JavaPlayGround.vue",
+    "README.md",
+    "LICENSE"
+  ]
+}
