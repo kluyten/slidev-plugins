@@ -1,6 +1,6 @@
 {
   "name": "@krisluyten/slidev-plugins",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Interactive Vue components for Slidev presentations: LLMQuery (AI-powered slide assistant) and JavaPlayGround (live Java code editor)",
   "main": "index.js",
   "author": "Kris Luyten <kris.luyten@uhasselt.be> (https://krisluyten.net)",

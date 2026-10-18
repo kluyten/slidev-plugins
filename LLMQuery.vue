@@ -30,21 +30,37 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND...
           @click="toggleQuery" 
           class="llm-icon-btn"
           :class="{ active: showQuery }"
-          :title="`Ask ${modelName}`"
+          :title="bufferTitle"
         >
           <component :is="iconComponent" class="llm-icon" />
-          <span v-if="hasAutoPrompt" class="auto-badge">Auto</span>
+          <span
+            v-if="hasAutoPrompt"
+            class="auto-badge"
+            :class="bufferState"
+            :title="bufferTitle"
+          >{{ bufferLabel }}</span>
         </button>
   
         <!-- Query Interface -->
         <div v-if="showQuery" class="llm-interface">
         <div class="llm-header">
-          <h4>{{ modelName }}</h4>
+          <component :is="iconComponent" class="llm-header-icon" />
+          <select
+            v-model="selectedModel"
+            class="llm-model-select"
+            aria-label="Model"
+            :title="activeModel"
+            @keydown.stop
+          >
+            <optgroup v-for="g in pickerGroups" :key="g.label" :label="g.label">
+              <option v-for="o in g.options" :key="o.id" :value="o.id">{{ o.name }}</option>
+            </optgroup>
+          </select>
           <div class="header-actions">
-            <button v-if="!autoExecuted" @click="executeQuery" class="refresh-btn" title="Execute Query">
+            <button v-if="!autoExecuted" @click="executeQuery" class="refresh-btn" title="Ask again">
               ↻
             </button>
-            <button @click="showQuery = false" class="close-btn">×</button>
+            <button @click="showQuery = false" class="close-btn" aria-label="Close">×</button>
           </div>
         </div>
         
@@ -118,14 +134,39 @@ const GrokIcon = {
 const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"><path d="M189.08 303.228H94.587l.044-94.446h94.497l-.048 94.446z" fill="#1c1c1b" fill-rule="nonzero"/><path d="M283.528 397.674h-94.493l.044-94.446h94.496l-.047 94.446z" fill="#1c1c1b" fill-rule="nonzero"/><path d="M283.575 303.228H189.08l.046-94.446h94.496l-.047 94.446z" fill="#1c1c1b" fill-rule="nonzero"/><path d="M378.07 303.228h-94.495l.044-94.446h94.498l-.047 94.446zM189.128 208.779H94.633l.044-94.448h94.498l-.047 94.448zM378.115 208.779h-94.494l.045-94.448h94.496l-.047 94.448zM94.587 303.227H.093l.044-96.017h94.496l-.046 96.017z" fill="#1c1c1b" fill-rule="nonzero"/><path d="M94.633 208.779H.138l.046-94.448H94.68l-.047 94.448z" fill="#1c1c1b" fill-rule="nonzero"/><path d="M94.68 115.902H.185L.23 19.885h94.498l-.047 96.017zM472.657 114.331h-94.495l.044-94.446h94.497l-.046 94.446zM94.54 399.244H.046l.044-97.588h94.497l-.047 97.588z" fill="#1c1c1b" fill-rule="nonzero"/><path d="M94.495 492.123H0l.044-94.446H94.54l-.045 94.446zM472.563 303.228H378.07l.044-94.446h94.496l-.047 94.446zM472.61 208.779h-94.495l.044-94.448h94.498l-.047 94.448z" fill="#1c1c1b" fill-rule="nonzero"/><path d="M472.517 397.674h-94.494l.044-94.446h94.497l-.047 94.446z" fill="#1c1c1b" fill-rule="nonzero"/><path d="M472.47 492.121h-94.493l.044-96.017h94.496l-.047 96.017z" fill="#1c1c1b" fill-rule="nonzero"/><path d="M228.375 303.22h-96.061l.046-94.446h96.067l-.052 94.446z" fill="#ff7000" fill-rule="nonzero"/><path d="M322.827 397.666h-94.495l.044-96.018h94.498l-.047 96.018z" fill="#ff4900" fill-rule="nonzero"/><path d="M324.444 303.22h-97.636l.046-94.446h97.638l-.048 94.446z" fill="#ff7000" fill-rule="nonzero"/><path d="M418.938 303.22h-96.064l.045-94.446h96.066l-.047 94.446z" fill="#ff7000" fill-rule="nonzero"/><path d="M228.423 208.77H132.36l.045-94.445h96.066l-.05 94.446zM418.985 208.77H322.92l.044-94.445h96.069l-.048 94.446z" fill="#ffa300" fill-rule="nonzero"/><path d="M133.883 304.79H39.392l.044-96.017h94.496l-.049 96.017z" fill="#ff7000" fill-rule="nonzero"/><path d="M133.929 208.77H39.437l.044-95.445h94.496l-.048 95.445z" fill="#ffa300" fill-rule="nonzero"/><path d="M133.976 114.325H39.484l.044-94.448h94.497l-.05 94.448zM511.954 115.325h-94.493l.044-95.448h94.497l-.048 95.448z" fill="#ffce00" fill-rule="nonzero"/><path d="M133.836 399.667H39.345l.044-96.447h94.496l-.049 96.447z" fill="#ff4900" fill-rule="nonzero"/><path d="M133.79 492.117H39.3l.044-94.448h94.496l-.049 94.448z" fill="#ff0107" fill-rule="nonzero"/><path d="M511.862 303.22h-94.495l.046-94.446h94.496l-.047 94.446z" fill="#ff7000" fill-rule="nonzero"/><path d="M511.907 208.77h-94.493l.044-94.445h94.496l-.047 94.446z" fill="#ffa300" fill-rule="nonzero"/><path d="M511.815 398.666h-94.493l.044-95.447h94.496l-.047 95.447z" fill="#ff4900" fill-rule="nonzero"/><path d="M511.77 492.117h-94.496l.046-94.448h94.496l-.047 94.448z" fill="#ff0107" fill-rule="nonzero"/></svg>`
 }
   
-  const props = defineProps<{
-    model: string
+const DeepSeekIcon = {
+  template: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 3.2a6.8 6.8 0 0 1 6.55 5h-4.2A3.2 3.2 0 0 0 12 8.2a3.2 3.2 0 0 0-2.35 1H5.45A6.8 6.8 0 0 1 12 5.2zm-6.8 6.8c0-.27.02-.54.05-.8h4.3a3.2 3.2 0 0 0 0 1.6h-4.3a6.9 6.9 0 0 1-.05-.8zm6.8 6.8a6.8 6.8 0 0 1-6.15-3.85h4.2A3.2 3.2 0 0 0 12 15.8a3.2 3.2 0 0 0 1.95-.65h4.2A6.8 6.8 0 0 1 12 18.8z"/></svg>`
+}
+
+const MoonshotIcon = {
+  template: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.3 14.8A7.2 7.2 0 0 1 8 5.6a.8.8 0 0 0-1.2-.85A8.8 8.8 0 1 0 19 17.9a.8.8 0 0 0-.85-1.2 7.3 7.3 0 0 1-.85.1z"/><circle cx="17.5" cy="6.5" r="2.2"/></svg>`
+}
+
+const QwenIcon = {
+  template: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5zm0 2.3 6.8 3.8-6.8 3.8L5.2 8.1 12 4.3zM5 9.9l6 3.4v6.8l-6-3.3V9.9zm14 0v6.9l-6 3.3v-6.8l6-3.4z"/></svg>`
+}
+
+// Shown when the model id is not in modelConfigs - makes a typo or a retired
+// model obvious at a glance instead of silently falling back to another logo.
+const UnknownIcon = {
+  template: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`
+}
+
+  const props = withDefaults(defineProps<{
+    // Optional. When a slide names no model, the panel shows the picker and
+    // starts on DEFAULT_MODEL, so a deck can be written without choosing one.
+    model?: string
     apiKey?: string
     systemPrompt?: string
     prompt?: string
     position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
+    // Vue casts an ABSENT Boolean prop to false, not undefined, so a bare
+    // `props.autoExecute !== false` test never holds and the buffered fetch
+    // never runs. The default has to be declared explicitly.
     autoExecute?: boolean
-  }>()
+  }>(), {
+    autoExecute: true,
+  })
 
   const slots = useSlots()
 
@@ -138,21 +179,126 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
   const autoExecuted = ref(false)
   const slideContentRef = ref<HTMLElement | null>(null)
   
+  // Model roster, verified against the OpenRouter catalogue.
+  // The six "fast" entries are the low-latency tier of each provider and are what
+  // the slides use by default; 'deep' models are reserved for critique prompts,
+  // where the answer is worth a few seconds more.
+  // Prices are USD per million tokens (input / output) at the time of writing.
   const modelConfigs = {
-    'gpt-4': { name: 'GPT-4', icon: ChatGPTIcon },
-    'openai/gpt-4.1-mini': { name: 'GPT-4.1 Mini', icon: ChatGPTIcon },
-    'anthropic/claude-sonnet-4': { name: 'Claude 4 Sonnet', icon: ClaudeIcon },
-    'anthropic/claude-3.5-sonnet': { name: 'Claude 3.5 Sonnet', icon: ClaudeIcon },
-    'google/gemini-2.5-pro': { name: 'Gemini Pro 2.5', icon: GeminiIcon },
-    'meta-llama/llama-3.3-70b-instruct': { name: 'Llama 3.3 70B', icon: LlamaIcon },
-    'x-ai/grok-code-fast-1': { name: 'Grok Code Fast', icon: GrokIcon },
-    'x-ai/grok-4': { name: 'Grok 4', icon: GrokIcon },
-    'mistralai/mistral-small-3.2-24b-instruct:free': { name: 'Mistral Small 3.2', icon: MistralIcon   }
+    // --- fast tier: use these for "generate an example" prompts ---
+    'google/gemini-3.1-flash-lite':  { name: 'Gemini 3.1 Flash Lite', icon: GeminiIcon,  tier: 'fast' }, // 0.25 / 1.50
+    'openai/gpt-5.6-luna':           { name: 'GPT-5.6 Luna',          icon: ChatGPTIcon, tier: 'fast' }, // 0.20 / 1.20
+    'meta-llama/llama-4-scout':      { name: 'Llama 4 Scout',         icon: LlamaIcon,   tier: 'fast' }, // 0.10 / 0.30
+    'mistralai/ministral-8b-2512':   { name: 'Ministral 8B',          icon: MistralIcon, tier: 'fast' }, // 0.15 / 0.15
+    'anthropic/claude-haiku-4.5':    { name: 'Claude Haiku 4.5',      icon: ClaudeIcon,  tier: 'fast' }, // 1.00 / 5.00
+
+    // --- deep tier: use sparingly, for "criticise this" / "argue with the professor" ---
+    'anthropic/claude-sonnet-5':     { name: 'Claude Sonnet 5',       icon: ClaudeIcon,  tier: 'general' }, // 2.00 / 10.00
+    'google/gemini-3.6-flash':       { name: 'Gemini 3.6 Flash',      icon: GeminiIcon,  tier: 'general' }, // 0.75 / 3.75
+    'openai/gpt-4.1':                { name: 'GPT-4.1',               icon: ChatGPTIcon, tier: 'general' }, // 2.00 / 8.00
+
+    // --- strong reasoning: slower and dearer, for "criticise this" / "argue with me" ---
+    'anthropic/claude-opus-5':       { name: 'Claude Opus 5',         icon: ClaudeIcon,   tier: 'reasoning' }, //  5.00 / 25.00
+    'openai/gpt-5.6-terra-pro':      { name: 'GPT-5.6 Terra Pro',     icon: ChatGPTIcon,  tier: 'reasoning' }, //  2.00 / 12.00
+    'x-ai/grok-4.6':                 { name: 'Grok 4.6',              icon: GrokIcon,     tier: 'reasoning' }, //  2.00 /  6.00
+    'moonshotai/kimi-k3':            { name: 'Kimi K3',               icon: MoonshotIcon, tier: 'reasoning' }, //  1.70 /  8.50
+
+    // --- general purpose ---
+    'x-ai/grok-4.3':                 { name: 'Grok 4.3',              icon: GrokIcon,     tier: 'general' },   //  1.25 /  2.50
+    'deepseek/deepseek-v4-pro-0813': { name: 'DeepSeek V4 Pro',       icon: DeepSeekIcon, tier: 'general' },   //  0.66 /  1.98
+
+    // --- coding ---
+    'openai/gpt-5.3-codex':          { name: 'GPT-5.3 Codex',         icon: ChatGPTIcon,  tier: 'coding' },    //  1.75 / 14.00
+    'qwen/qwen3-coder-flash':        { name: 'Qwen3 Coder Flash',     icon: QwenIcon,     tier: 'coding' },    //  0.20 /  0.97
+    'mistralai/devstral-2512':       { name: 'Devstral 2512',         icon: MistralIcon,  tier: 'coding' }     //  0.40 /  2.00
   }
+
+  // The dropdown, grouped. Every id verified against openrouter.ai/api/v1/models.
+  // Providers retire ids without warning - a stale id returns a 404 in front of the
+  // room - so re-check before each term with:
+  //   curl -s https://openrouter.ai/api/v1/models | \
+  //     python3 -c "import json,sys;print('\n'.join(sorted(m['id'] for m in json.load(sys.stdin)['data'])))"
+  const PICKER_GROUPS = [
+    { label: 'Reasoning - slower, for argument and critique', ids: [
+      'anthropic/claude-opus-5', 'openai/gpt-5.6-terra-pro', 'x-ai/grok-4.6', 'moonshotai/kimi-k3' ] },
+    { label: 'General purpose', ids: [
+      'anthropic/claude-sonnet-5', 'google/gemini-3.6-flash', 'x-ai/grok-4.3', 'deepseek/deepseek-v4-pro-0813' ] },
+    { label: 'Fast - for live examples', ids: [
+      'anthropic/claude-haiku-4.5', 'openai/gpt-5.6-luna', 'google/gemini-3.1-flash-lite', 'meta-llama/llama-4-scout' ] },
+    { label: 'Coding', ids: [
+      'openai/gpt-5.3-codex', 'qwen/qwen3-coder-flash', 'mistralai/devstral-2512' ] },
+  ]
+
+  // Models retired by OpenRouter, mapped to their nearest replacement. props.model is
+  // resolved through this, so a deck that still names a dead id keeps working instead
+  // of returning a 404 mid-lecture.
+  const RETIRED = {
+    'x-ai/grok-code-fast-1': 'qwen/qwen3-coder-flash',
+    'x-ai/grok-4': 'x-ai/grok-4.3',
+    'anthropic/claude-3.5-sonnet': 'anthropic/claude-sonnet-5',
+    'anthropic/claude-sonnet-4': 'anthropic/claude-sonnet-5',
+    'google/gemini-2.5-pro': 'google/gemini-3.6-flash',
+    'gpt-4': 'openai/gpt-4.1',
+    'mistralai/mistral-small-3.2-24b-instruct:free': 'mistralai/devstral-2512',
+  }
+  const resolveModel = (id) => RETIRED[id] || id
   
-  const modelName = computed(() => modelConfigs[props.model]?.name || props.model)
-  const iconComponent = computed(() => modelConfigs[props.model]?.icon || ChatGPTIcon)
+  const DEFAULT_MODEL = 'anthropic/claude-haiku-4.5'
+
+
+  // The id this panel will actually send. A slide's `model` wins until somebody
+  // picks another one in the dropdown; the pick is per panel and per page load,
+  // so the four-model comparison slides keep four different answers and a reload
+  // returns every slide to what it ships with.
+  const chosenModel = ref<string | null>(null)
+  const activeModel = computed(() =>
+    chosenModel.value || resolveModel(props.model || '') || DEFAULT_MODEL)
+
+  // v-model target for the dropdown: reads the active id, writes the per-panel pick.
+  const selectedModel = computed({
+    get: () => activeModel.value,
+    set: (v: string) => { chosenModel.value = v },
+  })
+
+  const isKnownModel = computed(() => Boolean(modelConfigs[activeModel.value]))
+  const modelName = computed(() => modelConfigs[activeModel.value]?.name || activeModel.value)
+  const iconComponent = computed(() => modelConfigs[activeModel.value]?.icon || UnknownIcon)
+
+  // The dropdown. An id that is selected but absent from the roster is added under
+  // its own id, so a slide naming something unusual still shows what it will send.
+  const pickerGroups = computed(() => {
+    const groups = PICKER_GROUPS.map(g => ({
+      label: g.label,
+      options: g.ids.map(id => ({ id, name: modelConfigs[id]?.name || id })),
+    }))
+    const listed = PICKER_GROUPS.some(g => g.ids.includes(activeModel.value))
+    if (!listed) {
+      groups.unshift({
+        label: 'This slide',
+        options: [{ id: activeModel.value, name: modelName.value }],
+      })
+    }
+    return groups
+  })
   const hasAutoPrompt = computed(() => Boolean(props.prompt))
+
+  // The badge tells you, without opening anything, whether the buffered answer
+  // has arrived - so you know if it is safe to click mid-sentence.
+  const bufferState = computed(() => {
+    if (loading.value) return 'is-loading'
+    if (error.value) return 'is-error'
+    if (response.value) return 'is-ready'
+    return 'is-idle'
+  })
+  const bufferLabel = computed(() => ({
+    'is-loading': '...', 'is-error': '!', 'is-ready': '\u2713', 'is-idle': 'Auto'
+  }[bufferState.value]))
+  const bufferTitle = computed(() => ({
+    'is-loading': `${modelName.value} is thinking...`,
+    'is-error': `${modelName.value} failed - click to see why`,
+    'is-ready': `${modelName.value} has an answer ready - click to show`,
+    'is-idle': `Ask ${modelName.value}`
+  }[bufferState.value]))
   
   const positionClass = computed(() => {
     switch (props.position) {
@@ -187,13 +333,16 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
     return ''
   }
   
-  const toggleQuery = () => {
+  const toggleQuery = async () => {
     showQuery.value = !showQuery.value
-    if (!showQuery.value) {
-      if (!hasAutoPrompt.value) {
-        response.value = ''
-        error.value = ''
-      }
+    if (showQuery.value) {
+      // The buffered response was rendered while the panel was closed, so its
+      // scroll height could not be measured until now.
+      await nextTick()
+      checkScrollable()
+    } else if (!hasAutoPrompt.value) {
+      response.value = ''
+      error.value = ''
     }
   }
   
@@ -212,6 +361,18 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
     return basePrompt
   }
   
+  // Slidev's PDF/PNG export loads every slide in a headless browser. Without this
+  // guard each LLMQuery would fire a live (paid) request during every export, and
+  // the answer would not even appear - base.css hides the panel when printing.
+  const isExporting = () => {
+    try {
+      const search = window.location.search || ''
+      return search.includes('print') || search.includes('export')
+    } catch {
+      return false
+    }
+  }
+
   const responseRef = ref<HTMLElement | null>(null)
 
   const checkScrollable = () => {
@@ -237,7 +398,11 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
       const apiKey = props.apiKey || (import.meta.env as any).VITE_OPENROUTER_API_KEY
 
       if (!apiKey) {
-        throw new Error('OpenRouter API key not provided')
+        throw new Error('OpenRouter API key not provided (set VITE_OPENROUTER_API_KEY in .env)')
+      }
+
+      if (!isKnownModel.value) {
+        console.warn(`[LLMQuery] "${activeModel.value}" is not in modelConfigs - it may have been retired by OpenRouter.`)
       }
 
       const messages = []
@@ -251,7 +416,7 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
       messages.push({ role: 'user', content: fullPrompt })
 
       const result = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-        model: props.model,
+        model: activeModel.value,
         messages,
         max_tokens: 1500,
         temperature: 0.7
@@ -292,11 +457,10 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
     if (props.prompt) {
       currentPrompt.value = props.prompt
 
-      // Auto-execute if autoExecute is true (default)
-      if (props.autoExecute !== false) {
-        // Auto-open the interface and execute
-        showQuery.value = true
-        await nextTick() // Wait for interface to render
+      // Pre-fetch the answer so it is ready the moment you click, but never while
+      // exporting. The panel deliberately stays CLOSED: auto-execute is buffering,
+      // not a popup. Opening it here would cover the slide you are teaching from.
+      if (props.autoExecute !== false && !isExporting()) {
         executeQuery()
       }
     }
@@ -375,28 +539,57 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
     position: absolute;
     top: -5px;
     right: -5px;
-    background: #28a745;
+    background: #6b7280;
     color: white;
     border-radius: 8px;
     font-size: 8px;
     padding: 2px 4px;
     font-weight: bold;
+    line-height: 1;
+    transition: background-color 0.2s ease;
+  }
+
+  .auto-badge.is-loading {
+    background: #d97706;
+    animation: auto-badge-pulse 1.2s ease-in-out infinite;
+  }
+
+  .auto-badge.is-ready {
+    background: #28a745;
+  }
+
+  .auto-badge.is-error {
+    background: #dc2626;
+  }
+
+  @keyframes auto-badge-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.45; }
   }
   
+  /* Sized in slide pixels against Slidev's 980x552 canvas. Viewport units are
+     wrong here: the slide is a scaled, transformed box, so vh/vw drift with the
+     window and a panel that fits on a laptop overflows on a projector. */
   .llm-interface {
     position: absolute;
-    top: 60px;
+    top: 58px;
     right: 0;
-    width: 500px;
-    max-width: 90vw;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    border: 1px solid #e0e0e0;
+    width: 660px;
+    max-width: calc(100vw - 40px);
+    display: flex;
+    flex-direction: column;
+    max-height: 400px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 18px 48px rgba(15, 26, 34, 0.22), 0 2px 6px rgba(15, 26, 34, 0.10);
+    border: 1px solid #dfe4ea;
     overflow: hidden;
-    max-height: 35vh;
-    overflow-y: auto;
-    scroll-behavior: smooth;
+  }
+
+  :global(html.dark) .llm-interface {
+    background: #1b232b;
+    border-color: #35414d;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55);
   }
   
   .pos-top-left .llm-interface,
@@ -413,19 +606,51 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
   
   .llm-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e0e0e0;
+    gap: 8px;
+    padding: 9px 11px;
+    background: #f5f7f9;
+    border-bottom: 1px solid #e3e8ed;
+    flex: 0 0 auto;
   }
 
-  .llm-header h4 {
-    margin: 0;
-    color: #333;
-    font-weight: 600;
-    font-size: 11px;
+  :global(html.dark) .llm-header {
+    background: #212b34;
+    border-bottom-color: #35414d;
   }
+
+  .llm-header-icon {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+    color: #55606b;
+  }
+
+  :global(html.dark) .llm-header-icon { color: #9fb0bd; }
+
+  /* The picker carries the header, so the model in use is always readable and
+     always changeable - including on a slide that named one. */
+  .llm-model-select {
+    flex: 1 1 auto;
+    min-width: 0;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #1f2933;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 3px 6px;
+    cursor: pointer;
+  }
+
+  .llm-model-select:hover { background: #e9eef3; border-color: #d3dbe3; }
+  .llm-model-select:focus-visible { outline: 2px solid #3b82f6; outline-offset: 1px; }
+
+  :global(html.dark) .llm-model-select { color: #e8edf2; }
+  :global(html.dark) .llm-model-select:hover { background: #2b3641; border-color: #3e4b58; }
+  :global(html.dark) .llm-model-select option,
+  :global(html.dark) .llm-model-select optgroup { background: #1b232b; color: #e8edf2; }
   
   .header-actions {
     display: flex;
@@ -531,7 +756,17 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
   }
   
   .llm-response {
-    max-height: 400px;
+    flex: 1 1 auto;
+    /* a flex child will not shrink below its content without this, which is what
+       pushed the answer out through the bottom of the panel */
+    min-height: 0;
+    max-height: none;
+    /* the answer is untrusted third-party text, so it sets its own type size
+       rather than inheriting the slide's, which is sized for a lecture hall */
+    font-size: 13.5px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    overscroll-behavior: contain;
     overflow-y: auto;
     padding: 12px;
     border-top: 1px solid #e0e0e0;
@@ -589,13 +824,13 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
     font-weight: 500;
   }
   
-  .response-content {
+  :deep(.response-content) {
     line-height: 1.6;
     color: #333;
   }
 
   /* Headings */
-  .response-content h1 {
+  :deep(.response-content) h1 {
     font-size: 1.8em;
     font-weight: 700;
     margin: 1em 0 0.5em;
@@ -604,21 +839,21 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
     padding-bottom: 0.3em;
   }
 
-  .response-content h2 {
+  :deep(.response-content) h2 {
     font-size: 1.5em;
     font-weight: 700;
     margin: 0.8em 0 0.4em;
     color: #2d3748;
   }
 
-  .response-content h3 {
+  :deep(.response-content) h3 {
     font-size: 1.25em;
     font-weight: 600;
     margin: 0.6em 0 0.3em;
     color: #2d3748;
   }
 
-  .response-content h4 {
+  :deep(.response-content) h4 {
     font-size: 1.1em;
     font-weight: 600;
     margin: 0.5em 0 0.25em;
@@ -626,56 +861,56 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
   }
 
   /* Paragraphs */
-  .response-content p {
+  :deep(.response-content) p {
     margin: 0.8em 0;
   }
 
   /* Lists */
-  .response-content ul,
-  .response-content ol {
+  :deep(.response-content) ul,
+  :deep(.response-content) ol {
     margin: 0.8em 0;
     padding-left: 2em;
   }
 
-  .response-content li {
+  :deep(.response-content) li {
     margin: 0.4em 0;
   }
 
-  .response-content ul li {
+  :deep(.response-content) ul li {
     list-style-type: disc;
   }
 
-  .response-content ol li {
+  :deep(.response-content) ol li {
     list-style-type: decimal;
   }
 
-  .response-content li > ul,
-  .response-content li > ol {
+  :deep(.response-content) li > ul,
+  :deep(.response-content) li > ol {
     margin: 0.4em 0;
   }
 
   /* Emphasis */
-  .response-content strong {
+  :deep(.response-content) strong {
     font-weight: 700;
     color: #1a202c;
   }
 
-  .response-content em {
+  :deep(.response-content) em {
     font-style: italic;
   }
 
   /* Links */
-  .response-content a {
+  :deep(.response-content) a {
     color: #3182ce;
     text-decoration: underline;
   }
 
-  .response-content a:hover {
+  :deep(.response-content) a:hover {
     color: #2c5aa0;
   }
 
   /* Blockquotes */
-  .response-content blockquote {
+  :deep(.response-content) blockquote {
     margin: 1em 0;
     padding: 0.8em 1em;
     border-left: 4px solid #3182ce;
@@ -684,44 +919,44 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
     font-style: italic;
   }
 
-  .response-content blockquote p {
+  :deep(.response-content) blockquote p {
     margin: 0;
   }
 
   /* Horizontal rule */
-  .response-content hr {
+  :deep(.response-content) hr {
     margin: 1.5em 0;
     border: none;
     border-top: 2px solid #e2e8f0;
   }
 
   /* Tables */
-  .response-content table {
+  :deep(.response-content) table {
     width: 100%;
     border-collapse: collapse;
     margin: 1em 0;
     font-size: 0.9em;
   }
 
-  .response-content table th,
-  .response-content table td {
+  :deep(.response-content) table th,
+  :deep(.response-content) table td {
     padding: 0.6em 0.8em;
     border: 1px solid #e2e8f0;
     text-align: left;
   }
 
-  .response-content table th {
+  :deep(.response-content) table th {
     background: #f7fafc;
     font-weight: 600;
     color: #2d3748;
   }
 
-  .response-content table tr:nth-child(even) {
+  :deep(.response-content) table tr:nth-child(even) {
     background: #f7fafc;
   }
 
   /* Inline code */
-  .response-content code {
+  :deep(.response-content) code {
     background: #f7fafc;
     padding: 0.2em 0.4em;
     border-radius: 4px;
@@ -732,7 +967,7 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
   }
 
   /* Code blocks */
-  .response-content pre {
+  :deep(.response-content) pre {
     background: #2d3748;
     color: #e2e8f0;
     padding: 16px;
@@ -742,21 +977,21 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
     scroll-behavior: smooth;
   }
 
-  .response-content pre::-webkit-scrollbar {
+  :deep(.response-content) pre::-webkit-scrollbar {
     height: 6px;
   }
 
-  .response-content pre::-webkit-scrollbar-track {
+  :deep(.response-content) pre::-webkit-scrollbar-track {
     background: #1a202c;
     border-radius: 3px;
   }
 
-  .response-content pre::-webkit-scrollbar-thumb {
+  :deep(.response-content) pre::-webkit-scrollbar-thumb {
     background: #4a5568;
     border-radius: 3px;
   }
 
-  .response-content pre::-webkit-scrollbar-thumb:hover {
+  :deep(.response-content) pre::-webkit-scrollbar-thumb:hover {
     background: #2d3748;
   }
 
@@ -784,9 +1019,14 @@ const MistralIcon = { template: `<svg viewBox="0 0 512 512" xmlns="http://www.w3
   }
 
   
-  .response-content pre code {
+  /* a <code> inside a <pre> already sits in a styled block; without resetting the
+     border and radius too it draws a second box inside the first */
+  :deep(.response-content) pre code {
     background: none;
     padding: 0;
     color: inherit;
+    border: 0;
+    border-radius: 0;
+    font-size: inherit;
   }
   </style>
