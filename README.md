@@ -21,7 +21,7 @@ An interactive component that integrates multiple Large Language Models (LLMs) d
 
 ```bash
 # Download the component
-curl -o components/LLMQuery.vue https://raw.githubusercontent.com/krisluyten/slidev-plugins/main/LLMQuery.vue
+curl -o components/LLMQuery.vue https://raw.githubusercontent.com/kluyten/slidev-plugins/main/LLMQuery.vue
 
 # Install dependencies
 npm install axios marked
@@ -175,7 +175,7 @@ A live Java code editor component with real-time execution capabilities, perfect
 
 ```bash
 # Download the component
-curl -o components/JavaPlayGround.vue https://raw.githubusercontent.com/krisluyten/slidev-plugins/main/JavaPlayGround.vue
+curl -o components/JavaPlayGround.vue https://raw.githubusercontent.com/kluyten/slidev-plugins/main/JavaPlayGround.vue
 
 # Install dependencies
 npm install axios
@@ -314,7 +314,7 @@ See individual component files for full license text.
 
 **Kris Luyten**
 - Website: [https://krisluyten.net](https://krisluyten.net)
-- GitHub: [@krisluyten](https://github.com/krisluyten)
+- GitHub: [@kluyten](https://github.com/kluyten)
 
 ---
 

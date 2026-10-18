@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/krisluyten/slidev-plugins.git"
+    "url": "https://github.com/kluyten/slidev-plugins.git"
   },
   "keywords": [
     "slidev",
